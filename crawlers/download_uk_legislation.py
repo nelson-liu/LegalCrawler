@@ -6,6 +6,7 @@ from data import DATA_DIR
 from bs4 import BeautifulSoup
 from crawlers.helpers import clean_text
 import traceback
+from tqdm import tqdm
 sys.setrecursionlimit(100000)
 
 dir_root = os.path.join(DATA_DIR, 'uk')
@@ -48,9 +49,11 @@ def download_uk_law():
                 os.makedirs(os.path.join(dir_root, act_type, str(year)))
             for id in range(1, last_id + 1):
                 possible_links.append(f'https://legislation.gov.uk/{act_type}/{year}/{id}')
-    with Pool(processes=cpu_count()) as pool:
-        pool.map(get_file_by_id, possible_links)
 
+    with Pool(processes=cpu_count()) as pool:
+        with tqdm(total=len(possible_links)) as pbar:
+            for _ in pool.imap_unordered(get_file_by_id, possible_links):
+                pbar.update()
 
 if __name__ == '__main__':
     download_uk_law()
