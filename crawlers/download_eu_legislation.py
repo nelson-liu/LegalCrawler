@@ -6,6 +6,7 @@ from multiprocessing import cpu_count, Pool
 from bs4 import BeautifulSoup
 from data import DATA_DIR
 from crawlers.helpers import clean_text
+import traceback
 sys.setrecursionlimit(100000)
 
 root_dir = os.path.join(DATA_DIR, 'eu')
@@ -20,18 +21,19 @@ def get_file_by_id(celex_id):
     try:
         content = requests.get(url).text
         if 'The requested document does not exist.' in content:
-            print(celex_id + ' DOES NOT EXIST IN ENGLISH')
-            raise Exception
-        with open(filename, 'w', encoding='utf-8') as file:
-            content = clean_text(content)
-            if "docHtml" in content:
-                cleantext = BeautifulSoup(content, "lxml").find("div", {"id": "docHtml"}).text
-            else:
-                cleantext = BeautifulSoup(content, "lxml").text
-            file.write(cleantext)
-    except:
-        print(celex_id + ' ERROR')
-
+            print(celex_id + ' does not exist in English')
+            return
+        content = clean_text(content)
+        if "docHtml" in content:
+            cleantext = BeautifulSoup(content, "lxml").find("div", {"id": "docHtml"}).text
+        else:
+            cleantext = BeautifulSoup(content, "lxml").text
+        if cleantext:
+            with open(filename, 'w') as f:
+                f.write(cleantext)
+    except Exception:
+        print('Unhandled exception: ' + celex_id)
+        traceback.print_exc()
 
 def download_eu_law():
 
@@ -42,7 +44,7 @@ def download_eu_law():
         celex_ids = [span.text[1:11] for span in BeautifulSoup(content, "html.parser").find_all('pre')]
     except:
         print('EURLEX SPARQL ENDPOINT NOT RESPONSIVE')
-        return 0
+        raise
 
     with Pool(processes=cpu_count()) as pool:
         pool.map(partial(get_file_by_id), celex_ids)
