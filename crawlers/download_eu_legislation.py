@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from data import DATA_DIR
 from crawlers.helpers import clean_text
 import traceback
+from tqdm import tqdm
 sys.setrecursionlimit(100000)
 
 root_dir = os.path.join(DATA_DIR, 'eu')
@@ -47,8 +48,9 @@ def download_eu_law():
         raise
 
     with Pool(processes=cpu_count()) as pool:
-        pool.map(partial(get_file_by_id), celex_ids)
-
+        with tqdm(total=len(celex_ids)) as pbar:
+            for _ in pool.imap_unordered(get_file_by_id, celex_ids):
+                pbar.update()
 
 if __name__ == '__main__':
     download_eu_law()
