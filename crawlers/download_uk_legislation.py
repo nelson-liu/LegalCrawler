@@ -7,20 +7,25 @@ from bs4 import BeautifulSoup
 from crawlers.helpers import clean_text
 import traceback
 from tqdm import tqdm
+from fake_useragent import UserAgent
+from time import sleep
 sys.setrecursionlimit(100000)
 
 dir_root = os.path.join(DATA_DIR, 'uk')
+ua = UserAgent()
 
 if not os.path.exists(DATA_DIR):
     os.mkdir(DATA_DIR)
 
 
 def get_file_by_id(original_url):
+    header = {'User-Agent':str(ua.chrome)}
     url = original_url + '/enacted?view=plain'
     uk_id = original_url.replace('https://legislation.gov.uk/','')
     filename = os.path.join(dir_root, f'{uk_id}.txt')
     try:
-        content = requests.get(url).text
+        content = requests.get(url, headers=header).text
+        sleep(1)
         if 'This item of legislation isn’t available on this site' in content or 'View PDF' in content:
             print(url + ' is not available on the site or is only in PDF')
             return
@@ -32,8 +37,8 @@ def get_file_by_id(original_url):
         if content:
             cleantext = content.text
             if cleantext:
-                with open(filename, 'w', encoding='utf-8') as file:
-                    file.write(cleantext)
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(cleantext)
     except Exception:
         print('Unhandled exception: ' + original_url)
         traceback.print_exc()
