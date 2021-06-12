@@ -28,10 +28,12 @@ def get_file_by_id(original_url):
             print(url + ' is not available')
             return
         content = clean_text(content)
-        cleantext = BeautifulSoup(content, "lxml").find("div", {"id": "content"}).text
-        if cleantext:
-            with open(filename, 'w', encoding='utf-8') as file:
-                file.write(cleantext)
+        content = BeautifulSoup(content, "lxml").find("div", {"id": "content"})
+        if content:
+            cleantext = content.text
+            if cleantext:
+                with open(filename, 'w', encoding='utf-8') as file:
+                    file.write(cleantext)
     except Exception:
         print('Unhandled exception: ' + original_url)
         traceback.print_exc()
