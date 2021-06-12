@@ -5,6 +5,7 @@ from multiprocessing import cpu_count, Pool
 from data import DATA_DIR
 from bs4 import BeautifulSoup
 from crawlers.helpers import clean_text
+import traceback
 sys.setrecursionlimit(100000)
 
 dir_root = os.path.join(DATA_DIR, 'uk')
@@ -20,18 +21,19 @@ def get_file_by_id(original_url):
     try:
         content = requests.get(url).text
         if 'This item of legislation isn’t available on this site' in content or 'View PDF' in content:
-            print(url + ' ONLY IN PDF')
-            return 0
+            print(url + ' is not available on the site or is only in PDF')
+            return
         elif 'The page you requested could not be found' in content:
-            print(url + ' NOT AVAILABLE')
-            return 0
-        with open(filename, 'w', encoding='utf-8') as file:
-            content = clean_text(content)
-            cleantext = BeautifulSoup(content, "lxml").find("div", {"id": "content"}).text
-            file.write(cleantext)
-    except Exception as error:
-        print(error)
-        print(original_url + ' ERROR')
+            print(url + ' is not available')
+            return
+        content = clean_text(content)
+        cleantext = BeautifulSoup(content, "lxml").find("div", {"id": "content"}).text
+        if cleantext:
+            with open(filename, 'w', encoding='utf-8') as file:
+                file.write(cleantext)
+    except Exception:
+        print('Unhandled exception: ' + original_url)
+        traceback.print_exc()
 
 
 def download_uk_law():
@@ -44,7 +46,7 @@ def download_uk_law():
         for year in range(start_year, 2022):
             if not os.path.exists(os.path.join(dir_root, act_type, str(year))):
                 os.makedirs(os.path.join(dir_root, act_type, str(year)))
-            for id in range(1, last_id+1):
+            for id in range(1, last_id + 1):
                 possible_links.append(f'https://legislation.gov.uk/{act_type}/{year}/{id}')
     with Pool(processes=cpu_count()) as pool:
         pool.map(get_file_by_id, possible_links)
