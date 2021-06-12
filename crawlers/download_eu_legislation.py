@@ -42,7 +42,7 @@ def download_eu_law():
 
     try:
         content = requests.get(sparql_query).text
-        celex_ids = [span.text[1:11] for span in BeautifulSoup(content, "html.parser").find_all('pre')]
+        celex_ids = set([span.text[1:11] for span in BeautifulSoup(content, "html.parser").find_all('pre')])
     except:
         print('EURLEX SPARQL ENDPOINT NOT RESPONSIVE')
         raise
