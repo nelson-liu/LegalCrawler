@@ -30,6 +30,8 @@ def parse_us_caselaw(input_path):
         for state in tqdm(os.path.join(input_path, case_text_path)):
             if not os.path.isdir(state):
                 continue
+            if state.startswith("."):
+                continue
             state_zip = os.path.join(state, f"{state}_text.zip")
             with zipfile.ZipFile(state_zip) as zf:
                 state_tmp = os.path.join(dir_root, f'{state}_temp')
