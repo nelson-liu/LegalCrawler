@@ -64,10 +64,6 @@ def parse_us_caselaw(input_path):
                         judges = obj['court']['name'] + '\n' + obj['casebody']['data']['judges'][0]
                     else:
                         judges = obj['court']['name']
-                    keys = list(obj['casebody']['data'].keys())
-                    if len(keys) > 5:
-                        print('ERROR {}'.format(id))
-
                     with open(os.path.join(dir_root, state, f'{id}.txt'), 'w') as file:
                         file.write(title + '\n' + head + '\n' + opinions + '\n' + judges)
             os.remove(jsonl_filename)
