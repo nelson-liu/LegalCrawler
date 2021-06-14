@@ -19,10 +19,7 @@ import os
 from tqdm import tqdm
 import json_lines
 from data import DATA_DIR
-try:
-    import lzma
-except ImportError:
-    from backports import lzma
+import subprocess
 
 dir_root = os.path.join(DATA_DIR, 'us_caselaw')
 
@@ -47,11 +44,9 @@ def parse_us_caselaw(input_path):
             shutil.move(filenames[0], jsonl_filename_compressed)
             shutil.rmtree(state_tmp)
 
-            with lzma.open(state_zip) as f:
-                jsonl_filename = os.path.join(DATA_DIR, f'{state}.jsonl')
-                contents = f.read().decode('utf-8')
-                with open(jsonl_filename, "w") as out:
-                    out.write(contents)
+            jsonl_filename = os.path.join(DATA_DIR, f'{state}.jsonl')
+            subprocess.run(["unxz", jsonl_filename_compressed], check=True)
+
             os.makedirs(os.path.join(dir_root, state))
             with json_lines.open(jsonl_filename) as reader:
                 for obj in reader:
