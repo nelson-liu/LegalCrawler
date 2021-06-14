@@ -36,6 +36,7 @@ def parse_us_caselaw(input_path):
                 continue
             print(f"Processing state {state}")
             state_zip = os.path.join(state_path, f"{state}_text.zip")
+            print(f"Unzipping {state_zip}")
             with zipfile.ZipFile(state_zip) as zf:
                 state_tmp = os.path.join(dir_root, f'{state}_temp')
                 zf.extractall(state_tmp)
@@ -45,6 +46,7 @@ def parse_us_caselaw(input_path):
             shutil.rmtree(state_tmp)
 
             jsonl_filename = os.path.join(DATA_DIR, f'{state}.jsonl')
+            print(f"Unzipping {jsonl_filename_compressed}")
             subprocess.run(["unxz", jsonl_filename_compressed], check=True)
 
             os.makedirs(os.path.join(dir_root, state))
