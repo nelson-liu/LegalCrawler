@@ -27,7 +27,7 @@ def parse_us_caselaw(input_path):
     case_text_paths = ["download/bulk_exports/latest/by_jurisdiction/case_text_open/*",
                        "download/bulk_exports/latest/by_jurisdiction/case_text_restricted/*"]
     for case_text_path in case_text_paths:
-        for state in tqdm(os.path.join(input_path, case_text_path)):
+        for state in tqdm(glob.glob(os.path.join(input_path, case_text_path))):
             if not os.path.isdir(state):
                 continue
             if state.startswith("."):
