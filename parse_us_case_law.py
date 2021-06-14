@@ -29,7 +29,7 @@ def parse_us_caselaw(input_path):
     for case_text_path in case_text_paths:
         for state_path in tqdm(glob.glob(os.path.join(input_path, case_text_path))):
             state = os.path.split(state_path)[1]
-            if not os.path.isdir(state):
+            if not os.path.isdir(state_path):
                 continue
             if state.startswith("."):
                 continue
