@@ -34,7 +34,7 @@ def parse_us_caselaw(input_path):
             if state.startswith("."):
                 continue
             print(f"Processing state {state}")
-            state_zip = os.path.join(state, f"{state}_text.zip")
+            state_zip = os.path.join(state_path, f"{state}_text.zip")
             with zipfile.ZipFile(state_zip) as zf:
                 state_tmp = os.path.join(dir_root, f'{state}_temp')
                 zf.extractall(state_tmp)
